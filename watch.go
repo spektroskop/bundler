@@ -28,8 +28,10 @@ func NewWatcher(root string) (*Watcher, error) {
 	}
 
 	if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
-		if !entry.IsDir() || strings.Contains(path, ".git") {
+		if !entry.IsDir() {
 			return nil
+		} else if strings.HasPrefix(entry.Name(), ".") {
+			return filepath.SkipDir
 		}
 
 		log.Debug().Str("path", path).Msg("watch folder")
