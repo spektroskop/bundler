@@ -2,23 +2,19 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s -output DIR [-optimize] [-debug] [-watch DIR] ENTRY...\n", os.Args[0])
-		os.Exit(1)
-	}
-
 	output := flag.String("output", "", "")
 	watch := flag.String("watch", "", "")
 	files := flag.String("files", "", "")
+	debounce := flag.Duration("debounce", 250*time.Millisecond, "")
 	debug := flag.Bool("debug", false, "")
 	optimize := flag.Bool("optimize", false, "")
 	flag.Parse()
@@ -55,7 +51,7 @@ func main() {
 	}
 
 	if *watch != "" {
-		watcher.Watch(func(name string) {
+		watcher.Watch(*debounce, func(name string) {
 			for _, build := range builds {
 				build.Rebuild()
 			}

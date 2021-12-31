@@ -47,8 +47,8 @@ func NewWatcher(root string) (*Watcher, error) {
 	return watcher, nil
 }
 
-func (watcher *Watcher) Watch(onChange func(string)) {
-	debounced := debounce.New(250 * time.Millisecond)
+func (watcher *Watcher) Watch(timeout time.Duration, onChange func(string)) {
+	debounced := debounce.New(timeout)
 
 	for {
 		select {
