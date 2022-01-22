@@ -58,15 +58,17 @@ func GleamOnLoad(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		return result, err
 	}
 
+	// TODO --lib
+
 	gleamCmd := []string{
 		"gleam",
 		"compile-package",
-		"--name",
-		"TODO",
 		"--target",
 		"javascript",
-		"--src",
-		path,
+		"--lib",
+		"source/gleam/build",
+		"--package",
+		filepath.Dir(path),
 		"--out",
 		temp,
 	}
@@ -79,6 +81,8 @@ func GleamOnLoad(args api.OnLoadArgs) (api.OnLoadResult, error) {
 	if err := cmd.Run(); err != nil {
 		return result, err
 	}
+
+	// TODO temp/dist/*.mjs
 
 	contents := ""
 	result.Contents = &contents
