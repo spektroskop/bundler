@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	notifyURL := flag.String("notify-url", "", "")
 	output := flag.String("output", "", "")
 	watch := flag.String("watch", "", "")
 	files := flag.String("files", "", "")
@@ -50,8 +51,10 @@ func main() {
 		builds = append(builds, build)
 	}
 
+	maybeNotify(*notifyURL)
+
 	if *watch != "" {
-		watcher.Watch(*debounce, func(name string) {
+		watcher.Watch(*debounce, *notifyURL, func(name string) {
 			for _, build := range builds {
 				build.Rebuild()
 			}

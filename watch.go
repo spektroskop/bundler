@@ -47,7 +47,7 @@ func NewWatcher(root string) (*Watcher, error) {
 	return watcher, nil
 }
 
-func (watcher *Watcher) Watch(timeout time.Duration, onChange func(string)) {
+func (watcher *Watcher) Watch(timeout time.Duration, notifyURL string, onChange func(string)) {
 	debounced := debounce.New(timeout)
 
 	for {
@@ -61,6 +61,7 @@ func (watcher *Watcher) Watch(timeout time.Duration, onChange func(string)) {
 				debounced(func() {
 					log.Info().Str("path", event.Name).Msg("changed")
 					onChange(event.Name)
+					maybeNotify(notifyURL)
 				})
 			}
 
