@@ -1,9 +1,30 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
 
-func maybeNotify(url string) {
+	"github.com/rs/zerolog/log"
+)
+
+func maybeNotify(method, url string) {
 	if url != "" {
-		http.Get(url)
+		req, err := http.NewRequest(method, url, nil)
+		if err != nil {
+			log.Error().Err(err).Str("url", url).Msg("notify request failed")
+			return
+		}
+
+		res, err := http.DefaultClient.Do(req)
+		if err != nil {
+			log.Error().Err(err).Str("url", url).Msg("notify request failed")
+			return
+		}
+
+		if res.StatusCode >= 400 {
+			log.Error().Int("status-code", res.StatusCode).Msg("notify request failed")
+			return
+		}
+
+		log.Info().Str("url", url).Int("response", res.StatusCode).Msg("notify")
 	}
 }

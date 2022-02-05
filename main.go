@@ -11,13 +11,15 @@ import (
 )
 
 func main() {
-	notifyURL := flag.String("notify-url", "", "")
-	output := flag.String("output", "", "")
-	watch := flag.String("watch", "", "")
-	files := flag.String("files", "", "")
 	debounce := flag.Duration("debounce", 250*time.Millisecond, "")
 	debug := flag.Bool("debug", false, "")
+	files := flag.String("files", "", "")
+	notifyMethod := flag.String("notify-method", "PATCH", "")
+	notifyURL := flag.String("notify-url", "", "")
 	optimize := flag.Bool("optimize", false, "")
+	output := flag.String("output", "", "")
+	watch := flag.String("watch", "", "")
+
 	flag.Parse()
 
 	log.Logger = log.Output(zerolog.ConsoleWriter{
@@ -51,10 +53,10 @@ func main() {
 		builds = append(builds, build)
 	}
 
-	maybeNotify(*notifyURL)
-
 	if *watch != "" {
-		watcher.Watch(*debounce, *notifyURL, func(name string) {
+		maybeNotify(*notifyMethod, *notifyURL)
+
+		watcher.Watch(*debounce, *notifyMethod, *notifyURL, func(name string) {
 			for _, build := range builds {
 				build.Rebuild()
 			}

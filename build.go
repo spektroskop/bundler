@@ -72,6 +72,7 @@ func (build *Build) write() error {
 	return group.Wait()
 }
 
+// TODO: Return error
 func (build *Build) handle() {
 	if len(build.result.Errors) > 0 {
 		for _, err := range build.result.Errors {
