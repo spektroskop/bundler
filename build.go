@@ -32,6 +32,7 @@ func NewBuild(entry, output string, optimize bool, files []string) *Build {
 	options.Incremental = true
 	options.Plugins = []api.Plugin{
 		NewElmPlugin(optimize),
+		NewGleamPlugin(),
 	}
 
 	loaders := make(map[string]api.Loader)
