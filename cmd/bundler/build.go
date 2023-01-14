@@ -8,6 +8,9 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
+
+	"bundler/internal/plugin/elm"
+	"bundler/internal/plugin/gren"
 )
 
 type Build struct {
@@ -28,19 +31,19 @@ func NewBuild(entry, output string, optimize bool, files []string) *Build {
 	options.MinifyWhitespace = optimize
 	options.MinifyIdentifiers = optimize
 	options.MinifySyntax = optimize
-	options.Target = api.ES5
+	// options.Target = api.ES5
 	options.Incremental = true
 	options.Plugins = []api.Plugin{
-		NewElmPlugin(optimize),
+		elm.New(optimize),
+		gren.New(optimize),
 	}
 
-	loaders := make(map[string]api.Loader)
+	options.Loader = make(map[string]api.Loader)
 	for _, ext := range files {
 		ext = fmt.Sprintf(".%s", ext)
 		log.Debug().Str("ext", ext).Msg("file loader")
-		loaders[ext] = api.LoaderFile
+		options.Loader[ext] = api.LoaderFile
 	}
-	options.Loader = loaders
 
 	build := new(Build)
 	build.entry = entry
@@ -78,6 +81,8 @@ func (build *Build) handle() {
 		for _, err := range build.result.Errors {
 			log.Error().Str("source", build.entry).Str("error", err.Text).Msg("build error")
 		}
+
+		log.Fatal().Msg("build failed")
 
 		return
 	}

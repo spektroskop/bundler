@@ -1,4 +1,4 @@
-package main
+package elm
 
 import (
 	"fmt"
@@ -10,24 +10,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func NewElmPlugin(optimize bool) api.Plugin {
+func New(optimize bool) api.Plugin {
 	return api.Plugin{
 		Name: "elm",
 		Setup: func(build api.PluginBuild) {
 			build.OnResolve(
 				api.OnResolveOptions{Filter: `\.elm$`},
-				ElmOnResolve,
+				onResolve,
 			)
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				ElmOnLoad(optimize),
+				onLoad(optimize),
 			)
 		},
 	}
 }
 
-func ElmOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	result := api.OnResolveResult{
 		Path:      filepath.Join(args.ResolveDir, args.Path),
 		Namespace: "elm",
@@ -36,7 +36,7 @@ func ElmOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	return result, nil
 }
 
-func ElmOnLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 
@@ -60,17 +60,17 @@ func ElmOnLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 			return result, err
 		}
 
-		elmMake := []string{"elm", "make"}
+		buildCommand := []string{"elm", "make"}
 
 		if optimize {
-			elmMake = append(elmMake, "--optimize")
+			buildCommand = append(buildCommand, "--optimize")
 		}
 
-		elmMake = append(elmMake, path, fmt.Sprintf("--output=%s", temp.Name()))
-		cmd := exec.Command(elmMake[0], elmMake[1:]...)
+		buildCommand = append(buildCommand, path, fmt.Sprintf("--output=%s", temp.Name()))
+		cmd := exec.Command(buildCommand[0], buildCommand[1:]...)
 		cmd.Stderr = os.Stderr
 
-		log.Debug().Str("path", path).Msg("compile")
+		log.Info().Str("plugin", "elm").Str("path", path).Msg("build")
 
 		if err := cmd.Run(); err != nil {
 			return result, err

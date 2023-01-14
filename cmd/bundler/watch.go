@@ -28,6 +28,10 @@ func NewWatcher(root string) (*Watcher, error) {
 	}
 
 	if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if !entry.IsDir() {
 			return nil
 		} else if strings.HasPrefix(entry.Name(), ".") {
@@ -47,7 +51,9 @@ func NewWatcher(root string) (*Watcher, error) {
 	return watcher, nil
 }
 
-func (watcher *Watcher) Watch(timeout time.Duration, notifyMethod, notifyURL string, onChange func(string)) {
+func (watcher *Watcher) Watch(timeout time.Duration,
+	notifyMethod string, notifyURL string,
+	onChange func(string)) {
 	debounced := debounce.New(timeout)
 
 	for {
