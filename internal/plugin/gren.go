@@ -1,4 +1,4 @@
-package elm
+package plugin
 
 import (
 	"fmt"
@@ -10,37 +10,37 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func New(optimize bool) api.Plugin {
+func Gren(optimize bool) api.Plugin {
 	return api.Plugin{
-		Name: "elm",
+		Name: "gren",
 		Setup: func(build api.PluginBuild) {
 			build.OnResolve(
-				api.OnResolveOptions{Filter: `\.elm$`},
-				onResolve,
+				api.OnResolveOptions{Filter: `\.gren$`},
+				grenOnResolve,
 			)
 
 			build.OnLoad(
-				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				onLoad(optimize),
+				api.OnLoadOptions{Filter: `.*`, Namespace: "gren"},
+				grenOnLoad(optimize),
 			)
 		},
 	}
 }
 
-func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+func grenOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	result := api.OnResolveResult{
 		Path:      filepath.Join(args.ResolveDir, args.Path),
-		Namespace: "elm",
+		Namespace: "gren",
 	}
 
 	return result, nil
 }
 
-func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func grenOnLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 
-		if _, err := exec.LookPath("elm"); err != nil {
+		if _, err := exec.LookPath("gren"); err != nil {
 			return result, err
 		}
 
@@ -60,7 +60,7 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 			return result, err
 		}
 
-		buildCommand := []string{"elm", "make"}
+		buildCommand := []string{"gren", "make"}
 
 		if optimize {
 			buildCommand = append(buildCommand, "--optimize")
@@ -70,7 +70,7 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		cmd := exec.Command(buildCommand[0], buildCommand[1:]...)
 		cmd.Stderr = os.Stderr
 
-		log.Info().Str("plugin", "elm").Str("path", path).Msg("build")
+		log.Info().Str("plugin", "gren").Str("path", path).Msg("build")
 
 		if err := cmd.Run(); err != nil {
 			return result, err

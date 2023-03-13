@@ -34,8 +34,8 @@ func NewBuild(entry, output string, optimize bool, files []string) *Build {
 	// options.Target = api.ES5
 	options.Incremental = true
 	options.Plugins = []api.Plugin{
-		elm.New(optimize),
-		gren.New(optimize),
+		plugin.Elm(optimize),
+		plugin.Gren(optimize),
 	}
 
 	options.Loader = make(map[string]api.Loader)
