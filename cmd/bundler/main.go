@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/rs/zerolog"
