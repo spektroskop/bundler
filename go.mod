@@ -1,4 +1,4 @@
-module bundler
+module github.com/spektroskop/bundler
 
 go 1.18
 

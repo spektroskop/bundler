@@ -9,8 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 
-	"bundler/internal/plugin/elm"
-	"bundler/internal/plugin/gren"
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
 type Build struct {
