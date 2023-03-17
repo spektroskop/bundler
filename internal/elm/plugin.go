@@ -1,4 +1,4 @@
-package plugin
+package elm
 
 import (
 	"fmt"
@@ -10,24 +10,28 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Elm(optimize bool) api.Plugin {
+type Config struct {
+	Optimize bool
+}
+
+func New(config Config) api.Plugin {
 	return api.Plugin{
 		Name: "elm",
 		Setup: func(build api.PluginBuild) {
 			build.OnResolve(
 				api.OnResolveOptions{Filter: `\.elm$`},
-				elmOnResolve,
+				onResolve,
 			)
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				elmOnLoad(optimize),
+				onLoad(config.Optimize),
 			)
 		},
 	}
 }
 
-func elmOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	result := api.OnResolveResult{
 		Path:      filepath.Join(args.ResolveDir, args.Path),
 		Namespace: "elm",
@@ -36,7 +40,7 @@ func elmOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	return result, nil
 }
 
-func elmOnLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 

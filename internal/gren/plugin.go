@@ -1,4 +1,4 @@
-package plugin
+package gren
 
 import (
 	"fmt"
@@ -10,24 +10,28 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func Gren(optimize bool) api.Plugin {
+type Config struct {
+	Optimize bool
+}
+
+func New(config Config) api.Plugin {
 	return api.Plugin{
 		Name: "gren",
 		Setup: func(build api.PluginBuild) {
 			build.OnResolve(
 				api.OnResolveOptions{Filter: `\.gren$`},
-				grenOnResolve,
+				onResolve,
 			)
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "gren"},
-				grenOnLoad(optimize),
+				onLoad(config.Optimize),
 			)
 		},
 	}
 }
 
-func grenOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	result := api.OnResolveResult{
 		Path:      filepath.Join(args.ResolveDir, args.Path),
 		Namespace: "gren",
@@ -36,7 +40,7 @@ func grenOnResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	return result, nil
 }
 
-func grenOnLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 
