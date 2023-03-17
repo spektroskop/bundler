@@ -9,8 +9,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/sync/errgroup"
 
-	"bundler/internal/plugin/elm"
-	"bundler/internal/plugin/gren"
+	"github.com/spektroskop/bundler/internal/elm"
+	"github.com/spektroskop/bundler/internal/gren"
 )
 
 type Build struct {
@@ -34,8 +34,8 @@ func NewBuild(entry, output string, optimize bool, files []string) *Build {
 	// options.Target = api.ES5
 	options.Incremental = true
 	options.Plugins = []api.Plugin{
-		elm.New(optimize),
-		gren.New(optimize),
+		elm.New(elm.Config{Optimize: optimize}),
+		gren.New(gren.Config{Optimize: optimize}),
 	}
 
 	options.Loader = make(map[string]api.Loader)
