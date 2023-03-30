@@ -24,13 +24,11 @@ func Log() api.Plugin {
 	inputs := func(output Output) []string {
 		var names []string
 		for name := range output.Inputs {
-			if strings.Contains(name, ":") {
-				if parts := strings.Split(name, ":"); len(parts) == 2 {
-					if wd, err := os.Getwd(); err == nil {
-						if path, err := filepath.Rel(wd, parts[1]); err == nil {
-							names = append(names, path)
-							continue
-						}
+			if parts := strings.Split(name, ":"); len(parts) == 2 {
+				if wd, err := os.Getwd(); err == nil {
+					if path, err := filepath.Rel(wd, parts[1]); err == nil {
+						names = append(names, path)
+						continue
 					}
 				}
 			}
