@@ -9,11 +9,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-type ElmConfig struct {
-	Optimize bool
-}
-
-func Elm(config ElmConfig) api.Plugin {
+func Elm(optimize bool) api.Plugin {
 	onResolve := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 		result := api.OnResolveResult{
 			Path:      filepath.Join(args.ResolveDir, args.Path),
@@ -78,7 +74,7 @@ func Elm(config ElmConfig) api.Plugin {
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				onLoad(config.Optimize),
+				onLoad(optimize),
 			)
 		},
 	}

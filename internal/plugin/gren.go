@@ -9,11 +9,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-type GrenConfig struct {
-	Optimize bool
-}
-
-func Gren(config GrenConfig) api.Plugin {
+func Gren(optimize bool) api.Plugin {
 	onResolve := func(args api.OnResolveArgs) (api.OnResolveResult, error) {
 		result := api.OnResolveResult{
 			Path:      filepath.Join(args.ResolveDir, args.Path),
@@ -78,7 +74,7 @@ func Gren(config GrenConfig) api.Plugin {
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "gren"},
-				onLoad(config.Optimize),
+				onLoad(optimize),
 			)
 		},
 	}

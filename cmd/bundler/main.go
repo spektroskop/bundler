@@ -41,9 +41,9 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
-		plugin.Elm(plugin.ElmConfig{cli.Optimize}),
-		plugin.Gren(plugin.GrenConfig{cli.Optimize}),
-		plugin.Analyze(),
+		plugin.Elm(cli.Optimize),
+		plugin.Gren(cli.Optimize),
+		plugin.Log(),
 	}
 
 	options.Loader = make(map[string]api.Loader)
