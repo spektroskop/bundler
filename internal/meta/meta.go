@@ -22,7 +22,7 @@ type Meta struct {
 
 func New() api.Plugin {
 	return api.Plugin{
-		Name: "PostBuildActions",
+		Name: "meta",
 		Setup: func(build api.PluginBuild) {
 			build.OnEnd(onEnd)
 		},
