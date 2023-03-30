@@ -21,6 +21,26 @@ type Meta struct {
 }
 
 func Log() api.Plugin {
+	inputs := func(output Output) []string {
+		var names []string
+		for name := range output.Inputs {
+			if strings.Contains(name, ":") {
+				if parts := strings.Split(name, ":"); len(parts) == 2 {
+					if wd, err := os.Getwd(); err == nil {
+						if path, err := filepath.Rel(wd, parts[1]); err == nil {
+							names = append(names, path)
+							continue
+						}
+					}
+				}
+			}
+
+			names = append(names, name)
+		}
+
+		return names
+	}
+
 	onEnd := func(result *api.BuildResult) (api.OnEndResult, error) {
 		if len(result.Metafile) == 0 {
 			return api.OnEndResult{}, nil
@@ -32,24 +52,8 @@ func Log() api.Plugin {
 		}
 
 		for name, output := range meta.Outputs {
-			var inputs []string
-			for name := range output.Inputs {
-				if strings.Contains(name, ":") {
-					if parts := strings.Split(name, ":"); len(parts) == 2 {
-						if wd, err := os.Getwd(); err == nil {
-							if rel, err := filepath.Rel(wd, parts[1]); err == nil {
-								inputs = append(inputs, rel)
-								continue
-							}
-						}
-					}
-				}
-
-				inputs = append(inputs, name)
-			}
-
 			log.Info().
-				Strs("source", inputs).
+				Strs("source", inputs(output)).
 				Msg(name)
 		}
 
