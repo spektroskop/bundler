@@ -20,7 +20,7 @@ type Meta struct {
 	Outputs map[string]Output `json:"outputs"`
 }
 
-func Analyze() api.Plugin {
+func Log() api.Plugin {
 	onEnd := func(result *api.BuildResult) (api.OnEndResult, error) {
 		if len(result.Metafile) == 0 {
 			return api.OnEndResult{}, nil
