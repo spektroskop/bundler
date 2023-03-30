@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/spektroskop/bundler/internal/elm"
+	"github.com/spektroskop/bundler/internal/gleam"
 	"github.com/spektroskop/bundler/internal/gren"
 	"github.com/spektroskop/bundler/internal/meta"
 )
@@ -42,9 +43,10 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
-		elm.New(cli.Optimize),
+		gleam.New(),
 		gren.New(cli.Optimize),
 		meta.New(),
+		elm.New(cli.Optimize),
 	}
 
 	options.Loader = make(map[string]api.Loader)
