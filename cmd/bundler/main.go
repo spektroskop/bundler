@@ -9,7 +9,9 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/spektroskop/bundler/internal/plugin"
+	"github.com/spektroskop/bundler/internal/elm"
+	"github.com/spektroskop/bundler/internal/gren"
+	"github.com/spektroskop/bundler/internal/meta"
 )
 
 type Bundler struct {
@@ -40,9 +42,9 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
-		plugin.Elm(cli.Optimize),
-		plugin.Gren(cli.Optimize),
-		plugin.Log(),
+		elm.New(cli.Optimize),
+		gren.New(cli.Optimize),
+		meta.New(),
 	}
 
 	options.Loader = make(map[string]api.Loader)
