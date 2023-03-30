@@ -1,49 +1,69 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/alecthomas/kong"
+	"github.com/evanw/esbuild/pkg/api"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
 type Bundler struct {
-	Optimize   bool     `help:"Optimized build where applicable."`
-	Debug      bool     `help:"Show debug messages."`
-	Load       []string `help:"File loaders." placeholder:"ext"`
-	Output     string   `help:"Output folder." required`
-	Entrypoint []string `help:"Entrypoints to build." arg placeholder:"path"`
+	Optimize    bool     `help:"Optimized build where applicable."`
+	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
+	Output      string   `help:"Output folder." placeholder:"PATH" required`
+	Entrypoints []string `help:"Entrypoints to build." name:"entrypoint" arg`
 }
 
 func main() {
-	var cli Bundler
-	kong.Parse(&cli)
-
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{
 		Out: os.Stdout, PartsExclude: []string{"time"},
 	})
 
-	if cli.Debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	var cli Bundler
+	kong.Parse(&cli)
+
+	var options api.BuildOptions
+
+	options.Metafile = true
+	options.EntryPoints = cli.Entrypoints
+	options.Bundle = true
+	options.Outdir = cli.Output
+	options.EntryNames = "[dir]/[name]"
+	options.AssetNames = "[dir]/[name]"
+	options.Write = true
+	options.MinifyWhitespace = cli.Optimize
+	options.MinifyIdentifiers = cli.Optimize
+	options.MinifySyntax = cli.Optimize
+	options.Plugins = []api.Plugin{
+		plugin.Elm(plugin.ElmConfig{cli.Optimize}),
+		plugin.Gren(plugin.GrenConfig{cli.Optimize}),
+		plugin.Analyze(),
 	}
 
-	log.Info().
-		Bool("debug", cli.Debug).
-		Strs("load", cli.Load).
-		Bool("optimize", cli.Optimize).
-		Str("output", cli.Output).
-		Strs("entrypoints", cli.Entrypoint).
-		Msg("bundle")
-
-	if err := os.MkdirAll(cli.Output, 0750); err != nil {
-		log.Fatal().Err(err).Msg("could not create output directory")
+	options.Loader = make(map[string]api.Loader)
+	for _, ext := range cli.Loaders {
+		ext = fmt.Sprintf(".%s", ext)
+		options.Loader[ext] = api.LoaderFile
 	}
 
-	var builds []*Build
-	for _, path := range cli.Entrypoint {
-		build := NewBuild(path, cli.Output, cli.Optimize, cli.Load)
-		builds = append(builds, build)
+	result := api.Build(options)
+	formatOptions := api.FormatMessagesOptions{Color: true}
+
+	for _, msg := range api.FormatMessages(result.Warnings, formatOptions) {
+		fmt.Print(msg)
+	}
+
+	for _, msg := range api.FormatMessages(result.Errors, formatOptions) {
+		fmt.Print(msg)
+	}
+
+	if len(result.Errors) != 0 {
+		os.Exit(1)
 	}
 }
