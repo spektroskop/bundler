@@ -50,9 +50,7 @@ func Log() api.Plugin {
 		}
 
 		for name, output := range meta.Outputs {
-			log.Info().
-				Strs("source", inputs(output)).
-				Msg(name)
+			log.Info().Strs("source", inputs(output)).Msg(name)
 		}
 
 		return api.OnEndResult{}, nil

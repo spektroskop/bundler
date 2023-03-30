@@ -20,7 +20,6 @@ type Bundler struct {
 }
 
 func main() {
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{
 		Out: os.Stdout, PartsExclude: []string{"time"},
 	})
