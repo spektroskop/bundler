@@ -33,16 +33,17 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 
-		if _, err := exec.LookPath("gren"); err != nil {
-			return result, err
-		}
-
-		cwd, err := os.Getwd()
+		command, err := exec.LookPath("gren")
 		if err != nil {
 			return result, err
 		}
 
-		path, err := filepath.Rel(cwd, args.Path)
+		wd, err := os.Getwd()
+		if err != nil {
+			return result, err
+		}
+
+		path, err := filepath.Rel(wd, args.Path)
 		if err != nil {
 			return result, err
 		}
@@ -53,7 +54,11 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		}
 		defer os.Remove(output.Name())
 
-		parts := []string{"gren", "make", path, fmt.Sprintf("--output=%s", output.Name())}
+		parts := []string{
+			command, "make", path,
+			fmt.Sprintf("--output=%s", output.Name()),
+		}
+
 		if optimize {
 			parts = append(parts, "--optimize")
 		}
