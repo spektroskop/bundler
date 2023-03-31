@@ -43,10 +43,10 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
+		elm.New(cli.Optimize),
 		gleam.New(),
 		gren.New(cli.Optimize),
 		meta.New(),
-		elm.New(cli.Optimize),
 	}
 
 	options.Loader = make(map[string]api.Loader)

@@ -35,7 +35,7 @@ func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
-
+		panic("not implemented yet")
 		return result, nil
 	}
 }
