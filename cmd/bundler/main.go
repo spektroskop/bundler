@@ -18,6 +18,7 @@ import (
 
 type Bundler struct {
 	Optimize    bool     `help:"Optimized build where applicable."`
+	Tailwind    bool     `help:"Process stylesheets through tailwind"`
 	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
 	Entrypoints []string `help:"Entrypoints to build." name:"entrypoint" arg`
@@ -48,7 +49,10 @@ func main() {
 		gleam.New(),
 		gren.New(cli.Optimize),
 		meta.New(),
-		tailwind.New(),
+	}
+
+	if cli.Tailwind {
+		options.Plugins = append(options.Plugins, tailwind.New())
 	}
 
 	options.Loader = make(map[string]api.Loader)
