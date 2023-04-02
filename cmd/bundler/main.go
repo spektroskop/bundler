@@ -13,6 +13,7 @@ import (
 	"github.com/spektroskop/bundler/internal/gleam"
 	"github.com/spektroskop/bundler/internal/gren"
 	"github.com/spektroskop/bundler/internal/meta"
+	"github.com/spektroskop/bundler/internal/tailwind"
 )
 
 type Bundler struct {
@@ -47,6 +48,7 @@ func main() {
 		gleam.New(),
 		gren.New(cli.Optimize),
 		meta.New(),
+		tailwind.New(),
 	}
 
 	options.Loader = make(map[string]api.Loader)
