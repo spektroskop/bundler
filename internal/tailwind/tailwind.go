@@ -1,7 +1,6 @@
 package tailwind
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -58,7 +57,6 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		parts := []string{
 			command, "--input", path, "--output", output.Name(),
 		}
-		fmt.Println(parts)
 
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Stderr = os.Stderr
