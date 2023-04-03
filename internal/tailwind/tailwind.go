@@ -48,29 +48,19 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 			return result, err
 		}
 
-		output, err := os.CreateTemp("/tmp", "*.css")
-		if err != nil {
-			return result, err
-		}
-		defer os.Remove(output.Name())
-
-		parts := []string{
-			command, "--input", path, "--output", output.Name(),
-		}
+		parts := []string{command, "--input", path}
 
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Stderr = os.Stderr
 
-		if err := cmd.Run(); err != nil {
+		compiled, err := cmd.Output()
+		if err != nil {
 			return result, err
 		}
 
-		compiled, err := os.ReadFile(output.Name())
-		if err == nil {
-			contents := string(compiled)
-			result.Contents = &contents
-		}
+		contents := string(compiled)
+		result.Contents = &contents
 
-		return result, err
+		return result, nil
 	}
 }
