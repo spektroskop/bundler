@@ -1,6 +1,8 @@
 package tailwind
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,11 +52,13 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 
 		parts := []string{command, "--input", path}
 
+		var stderr bytes.Buffer
 		cmd := exec.Command(parts[0], parts[1:]...)
-		cmd.Stderr = os.Stderr
+		cmd.Stderr = &stderr
 
 		compiled, err := cmd.Output()
 		if err != nil {
+			fmt.Fprintln(os.Stderr, stderr.String())
 			return result, err
 		}
 
