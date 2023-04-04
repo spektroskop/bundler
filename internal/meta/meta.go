@@ -20,11 +20,11 @@ type Meta struct {
 	Outputs map[string]Output `json:"outputs"`
 }
 
-func New() api.Plugin {
+func New(path string) api.Plugin {
 	return api.Plugin{
 		Name: "meta",
 		Setup: func(build api.PluginBuild) {
-			build.OnEnd(onEnd)
+			build.OnEnd(onEnd(path))
 		},
 	}
 }
@@ -48,19 +48,34 @@ func getInputs(output Output) []string {
 	return names
 }
 
-func onEnd(result *api.BuildResult) (api.OnEndResult, error) {
-	if len(result.Metafile) == 0 {
+func onEnd(path string) func(result *api.BuildResult) (api.OnEndResult, error) {
+	return func(result *api.BuildResult) (api.OnEndResult, error) {
+		if len(result.Metafile) == 0 {
+			return api.OnEndResult{}, nil
+		}
+
+		if path != "" {
+			f, err := os.Create(path)
+			if err != nil {
+				return api.OnEndResult{}, err
+			}
+
+			if _, err := f.Write([]byte(result.Metafile)); err != nil {
+				return api.OnEndResult{}, err
+			}
+
+			log.Info().Str("path", path).Msg("saved meta file")
+		}
+
+		var meta Meta
+		if err := json.Unmarshal([]byte(result.Metafile), &meta); err != nil {
+			return api.OnEndResult{}, err
+		}
+
+		for name, output := range meta.Outputs {
+			log.Info().Strs("source", getInputs(output)).Msg(name)
+		}
+
 		return api.OnEndResult{}, nil
 	}
-
-	var meta Meta
-	if err := json.Unmarshal([]byte(result.Metafile), &meta); err != nil {
-		return api.OnEndResult{}, err
-	}
-
-	for name, output := range meta.Outputs {
-		log.Info().Strs("source", getInputs(output)).Msg(name)
-	}
-
-	return api.OnEndResult{}, nil
 }

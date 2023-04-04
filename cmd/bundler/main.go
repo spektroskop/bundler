@@ -17,11 +17,12 @@ import (
 )
 
 type Bundler struct {
-	Optimize    bool     `help:"Optimized build where applicable."`
-	Tailwind    bool     `help:"Process stylesheets through tailwind"`
-	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
-	Output      string   `help:"Output folder." placeholder:"PATH" required`
 	Entrypoints []string `help:"Entrypoints to build." name:"entrypoint" arg`
+	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
+	Meta        string   `help:"Meta file output." placeholder:"PATH"`
+	Optimize    bool     `help:"Optimized build where applicable."`
+	Output      string   `help:"Output folder." placeholder:"PATH" required`
+	Tailwind    bool     `help:"Process stylesheets through tailwind"`
 }
 
 func main() {
@@ -48,7 +49,7 @@ func main() {
 		elm.New(cli.Optimize),
 		gleam.New(),
 		gren.New(cli.Optimize),
-		meta.New(),
+		meta.New(cli.Meta),
 	}
 
 	if cli.Tailwind {
