@@ -25,7 +25,7 @@ type Bundler struct {
 	Meta        string   `help:"Meta file output." placeholder:"PATH"`
 	Optimize    bool     `help:"Optimized build where applicable."`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
-	Resolve     string   `help:"Import resolve dir" placeholder:"PATH"`
+	Resolve     string   `help:"Import resolve dir." placeholder:"PATH"`
 }
 
 func main() {
