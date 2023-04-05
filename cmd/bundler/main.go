@@ -54,19 +54,24 @@ func main() {
 		options.Loader[ext] = api.LoaderFile
 	}
 
+	plugins := make(map[string]api.Plugin)
 	options.Plugins = []api.Plugin{meta.New(cli.Meta)}
 	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
 	for _, name := range cli.Plugins {
 		switch name {
 		case "elm":
-			options.Plugins = append(options.Plugins, elm.New(config))
+			plugins[name] = elm.New(config)
 		case "gleam":
-			options.Plugins = append(options.Plugins, gleam.New(config))
+			plugins[name] = gleam.New(config)
 		case "gren":
-			options.Plugins = append(options.Plugins, gren.New(config))
+			plugins[name] = gren.New(config)
 		case "tailwind":
-			options.Plugins = append(options.Plugins, tailwind.New(config))
+			plugins[name] = tailwind.New(config)
 		}
+	}
+
+	for _, plugin := range plugins {
+		options.Plugins = append(options.Plugins, plugin)
 	}
 
 	result := api.Build(options)
