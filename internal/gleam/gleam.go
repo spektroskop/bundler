@@ -40,6 +40,8 @@ func onLoad(path string) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 		result.ResolveDir = path
+
+		// FIXME: Hm..
 		source := filepath.Base(args.Path)
 		entrypoint := fmt.Sprintf("%s/%s",
 			result.ResolveDir,
