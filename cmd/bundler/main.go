@@ -23,7 +23,7 @@ type Bundler struct {
 	Meta        string   `help:"Meta file output." placeholder:"PATH"`
 	Optimize    bool     `help:"Optimized build where applicable."`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
-	Plugins     []string `help:"Plugins to activate" enum:"elm,gleam,gren,tailwind"`
+	Plugins     []string `help:"List of plugins to activate (${enum})." enum:"elm,gleam,gren,tailwind" placeholder:"NAME"`
 	Resolve     string   `help:"Import resolve dir" placeholder:"PATH"`
 }
 
