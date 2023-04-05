@@ -23,8 +23,8 @@ type Bundler struct {
 	Meta        string   `help:"Meta file output." placeholder:"PATH"`
 	Optimize    bool     `help:"Optimized build where applicable."`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
+	Plugins     []string `help:"Plugins to activate" enum:"elm,gleam,gren,tailwind"`
 	Resolve     string   `help:"Import resolve dir" placeholder:"PATH"`
-	Tailwind    bool     `help:"Process stylesheets through tailwind"`
 }
 
 func main() {
@@ -48,23 +48,25 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 
-	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
-
-	options.Plugins = []api.Plugin{
-		elm.New(config),
-		gleam.New(config),
-		gren.New(config),
-		meta.New(cli.Meta),
-	}
-
-	if cli.Tailwind {
-		options.Plugins = append(options.Plugins, tailwind.New(config))
-	}
-
 	options.Loader = make(map[string]api.Loader)
 	for _, ext := range cli.Loaders {
 		ext = fmt.Sprintf(".%s", ext)
 		options.Loader[ext] = api.LoaderFile
+	}
+
+	options.Plugins = []api.Plugin{meta.New(cli.Meta)}
+	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
+	for _, name := range cli.Plugins {
+		switch name {
+		case "elm":
+			options.Plugins = append(options.Plugins, elm.New(config))
+		case "gleam":
+			options.Plugins = append(options.Plugins, gleam.New(config))
+		case "gren":
+			options.Plugins = append(options.Plugins, gren.New(config))
+		case "tailwind":
+			options.Plugins = append(options.Plugins, tailwind.New(config))
+		}
 	}
 
 	result := api.Build(options)
