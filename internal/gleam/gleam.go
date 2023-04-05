@@ -60,6 +60,10 @@ func onLoad(resolveDir string) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Stderr = os.Stderr
 
+		if err := cmd.Run(); err != nil {
+			return result, err
+		}
+
 		compiled, err := os.ReadFile(entrypoint)
 		if err == nil {
 			contents := string(compiled)
