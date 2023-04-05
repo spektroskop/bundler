@@ -8,31 +8,38 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func New() api.Plugin {
-	return api.Plugin{
-		Name: "tailwind",
-		Setup: func(build api.PluginBuild) {
-			build.OnResolve(
-				api.OnResolveOptions{Filter: `\.css$`},
-				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path := filepath.Join(args.ResolveDir, args.Path)
-					return api.OnResolveResult{Path: path, Namespace: "tailwind"}, nil
-				},
-			)
+func New(config plugin.Config) api.Plugin {
+	return api.Plugin{Name: "tailwind", Setup: setup(config)}
+}
 
-			build.OnLoad(
-				api.OnLoadOptions{Filter: `.*`, Namespace: "tailwind"},
-				onLoad(),
-			)
-		},
+func setup(config plugin.Config) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnResolve(
+			api.OnResolveOptions{Filter: `\.css$`},
+			onResolve,
+		)
+
+		build.OnLoad(
+			api.OnLoadOptions{Filter: `.*`, Namespace: "tailwind"},
+			onLoad(config),
+		)
 	}
 }
 
-func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+	var result api.OnResolveResult
+	result.Path = filepath.Join(args.ResolveDir, args.Path)
+	result.Namespace = "tailwind"
+	return result, nil
+}
+
+func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
+		result.ResolveDir = config.Resolve
 		result.Loader = api.LoaderCSS
 
 		command, err := exec.LookPath("tailwind")
@@ -40,17 +47,7 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 			return result, err
 		}
 
-		wd, err := os.Getwd()
-		if err != nil {
-			return result, err
-		}
-
-		path, err := filepath.Rel(wd, args.Path)
-		if err != nil {
-			return result, err
-		}
-
-		parts := []string{command, "--input", path}
+		parts := []string{command, "--input", args.Path}
 
 		var stderr bytes.Buffer
 		cmd := exec.Command(parts[0], parts[1:]...)

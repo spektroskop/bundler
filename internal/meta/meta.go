@@ -10,59 +10,25 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Input struct{}
-
 type Output struct {
-	Inputs map[string]Input `json:"inputs"`
+	Inputs map[string]any `json:"inputs"`
 }
 
 type Meta struct {
 	Outputs map[string]Output `json:"outputs"`
 }
 
-func New(path string) api.Plugin {
-	return api.Plugin{
-		Name: "meta",
-		Setup: func(build api.PluginBuild) {
-			build.OnEnd(onEnd(path))
-		},
+func New(save string) api.Plugin {
+	return api.Plugin{Name: "meta", Setup: setup(save)}
+}
+
+func setup(save string) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnEnd(onEnd(save))
 	}
 }
 
-func getInputs(output Output) []string {
-	var names []string
-
-	for name := range output.Inputs {
-		if parts := strings.Split(name, ":"); len(parts) == 2 {
-			if wd, err := os.Getwd(); err == nil {
-				if path, err := filepath.Rel(wd, parts[1]); err == nil {
-					names = append(names, path)
-					continue
-				}
-			}
-		}
-
-		names = append(names, name)
-	}
-
-	return names
-}
-
-func saveMeta(path string, data string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-
-	if _, err := f.Write([]byte(data)); err != nil {
-		return err
-	}
-
-	log.Info().Str("path", path).Msg("saved meta file")
-	return nil
-}
-
-func onEnd(path string) func(result *api.BuildResult) (api.OnEndResult, error) {
+func onEnd(save string) func(result *api.BuildResult) (api.OnEndResult, error) {
 	return func(result *api.BuildResult) (api.OnEndResult, error) {
 		if len(result.Metafile) == 0 {
 			return api.OnEndResult{}, nil
@@ -73,14 +39,36 @@ func onEnd(path string) func(result *api.BuildResult) (api.OnEndResult, error) {
 			return api.OnEndResult{}, err
 		}
 
-		if path != "" {
-			if err := saveMeta(path, result.Metafile); err != nil {
+		if save != "" {
+			f, err := os.Create(save)
+			if err != nil {
 				return api.OnEndResult{}, err
 			}
+
+			if _, err := f.Write([]byte(result.Metafile)); err != nil {
+				return api.OnEndResult{}, err
+			}
+
+			log.Info().Str("path", save).Msg("saved meta file")
 		}
 
 		for name, output := range meta.Outputs {
-			log.Info().Strs("source", getInputs(output)).Msg(name)
+			var source []string
+
+			for name := range output.Inputs {
+				if parts := strings.Split(name, ":"); len(parts) == 2 {
+					if wd, err := os.Getwd(); err == nil {
+						if path, err := filepath.Rel(wd, parts[1]); err == nil {
+							source = append(source, path)
+							continue
+						}
+					}
+				}
+
+				source = append(source, name)
+			}
+
+			log.Info().Strs("source", source).Msg(name)
 		}
 
 		return api.OnEndResult{}, nil

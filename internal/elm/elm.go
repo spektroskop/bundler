@@ -7,44 +7,41 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
+
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func New(resolveDir string, optimize bool) api.Plugin {
-	return api.Plugin{
-		Name: "elm",
-		Setup: func(build api.PluginBuild) {
-			build.OnResolve(
-				api.OnResolveOptions{Filter: `\.elm$`},
-				func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-					path := filepath.Join(args.ResolveDir, args.Path)
-					return api.OnResolveResult{Path: path, Namespace: "elm"}, nil
-				},
-			)
+func New(config plugin.Config) api.Plugin {
+	return api.Plugin{Name: "elm", Setup: setup(config)}
+}
 
-			build.OnLoad(
-				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				onLoad(resolveDir, optimize),
-			)
-		},
+func setup(config plugin.Config) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnResolve(
+			api.OnResolveOptions{Filter: `\.elm$`},
+			onResolve,
+		)
+
+		build.OnLoad(
+			api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
+			onLoad(config),
+		)
 	}
 }
 
-func onLoad(resolveDir string, optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+	var result api.OnResolveResult
+	result.Path = filepath.Join(args.ResolveDir, args.Path)
+	result.Namespace = "elm"
+	return result, nil
+}
+
+func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
-		result.ResolveDir = resolveDir
+		result.ResolveDir = config.Resolve
 
 		command, err := exec.LookPath("elm")
-		if err != nil {
-			return result, err
-		}
-
-		wd, err := os.Getwd()
-		if err != nil {
-			return result, err
-		}
-
-		path, err := filepath.Rel(wd, args.Path)
 		if err != nil {
 			return result, err
 		}
@@ -56,11 +53,11 @@ func onLoad(resolveDir string, optimize bool) func(api.OnLoadArgs) (api.OnLoadRe
 		defer os.Remove(output.Name())
 
 		parts := []string{
-			command, "make", path,
+			command, "make", args.Path,
 			fmt.Sprintf("--output=%s", output.Name()),
 		}
 
-		if optimize {
+		if config.Optimized {
 			parts = append(parts, "--optimize")
 		}
 

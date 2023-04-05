@@ -13,6 +13,7 @@ import (
 	"github.com/spektroskop/bundler/internal/gleam"
 	"github.com/spektroskop/bundler/internal/gren"
 	"github.com/spektroskop/bundler/internal/meta"
+	"github.com/spektroskop/bundler/internal/plugin"
 	"github.com/spektroskop/bundler/internal/tailwind"
 )
 
@@ -46,15 +47,18 @@ func main() {
 	options.MinifyWhitespace = cli.Optimize
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
+
+	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
+
 	options.Plugins = []api.Plugin{
-		elm.New(cli.Resolve, cli.Optimize),
-		gleam.New(cli.Resolve),
-		gren.New(cli.Resolve, cli.Optimize),
+		elm.New(config),
+		gleam.New(config),
+		gren.New(config),
 		meta.New(cli.Meta),
 	}
 
 	if cli.Tailwind {
-		options.Plugins = append(options.Plugins, tailwind.New())
+		options.Plugins = append(options.Plugins, tailwind.New(config))
 	}
 
 	options.Loader = make(map[string]api.Loader)
