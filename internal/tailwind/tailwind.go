@@ -18,7 +18,7 @@ func New(config plugin.Config) api.Plugin {
 func setup(config plugin.Config) func(build api.PluginBuild) {
 	return func(build api.PluginBuild) {
 		build.OnResolve(
-			api.OnResolveOptions{Filter: `\.tailwind$`},
+			api.OnResolveOptions{Filter: `\.css$`},
 			onResolve,
 		)
 
