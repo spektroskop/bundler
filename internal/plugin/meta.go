@@ -1,4 +1,4 @@
-package meta
+package plugin
 
 import (
 	"encoding/json"
@@ -16,11 +16,11 @@ type Output struct {
 	Inputs map[string]Input `json:"inputs"`
 }
 
-type Meta struct {
+type Metadata struct {
 	Outputs map[string]Output `json:"outputs"`
 }
 
-func New(path string) api.Plugin {
+func Meta(path string) api.Plugin {
 	return api.Plugin{
 		Name: "meta",
 		Setup: func(build api.PluginBuild) {
@@ -68,7 +68,7 @@ func onEnd(path string) func(result *api.BuildResult) (api.OnEndResult, error) {
 			return api.OnEndResult{}, nil
 		}
 
-		var meta Meta
+		var meta Metadata
 		if err := json.Unmarshal([]byte(result.Metafile), &meta); err != nil {
 			return api.OnEndResult{}, err
 		}

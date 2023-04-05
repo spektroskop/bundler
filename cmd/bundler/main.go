@@ -9,11 +9,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
-	"github.com/spektroskop/bundler/internal/elm"
-	"github.com/spektroskop/bundler/internal/gleam"
-	"github.com/spektroskop/bundler/internal/gren"
-	"github.com/spektroskop/bundler/internal/meta"
-	"github.com/spektroskop/bundler/internal/tailwind"
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
 type Bundler struct {
@@ -46,15 +42,19 @@ func main() {
 	options.MinifyWhitespace = cli.Optimize
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
+	var config plugin.Config
+	config.Optimized = cli.Optimize
+	config.Resolve = cli.Resolve
+
 	options.Plugins = []api.Plugin{
-		elm.New(cli.Resolve, cli.Optimize),
-		gleam.New(cli.Resolve),
-		gren.New(cli.Resolve, cli.Optimize),
-		meta.New(cli.Meta),
+		plugin.Elm(config),
+		plugin.Gleam(config),
+		plugin.Gren(config),
+		plugin.Meta(cli.Meta),
 	}
 
 	if cli.Tailwind {
-		options.Plugins = append(options.Plugins, tailwind.New())
+		options.Plugins = append(options.Plugins, plugin.Tailwind(config))
 	}
 
 	options.Loader = make(map[string]api.Loader)
