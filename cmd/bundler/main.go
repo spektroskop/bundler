@@ -47,9 +47,8 @@ func main() {
 	options.MinifyWhitespace = cli.Optimize
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
-	var config plugin.Config
-	config.Optimized = cli.Optimize
-	config.Resolve = cli.Resolve
+
+	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
 
 	options.Plugins = []api.Plugin{
 		elm.New(config),
