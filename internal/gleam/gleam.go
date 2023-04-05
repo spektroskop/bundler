@@ -1,6 +1,8 @@
 package gleam
 
 import (
+	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
@@ -35,7 +37,26 @@ func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
-		panic("not implemented yet")
-		return result, nil
+		result.ResolveDir = "build/dev/javascript/vvv"
+
+		command, err := exec.LookPath("gleam")
+		if err != nil {
+			return result, err
+		}
+
+		parts := []string{
+			command, "build", "--target=javascript",
+		}
+
+		cmd := exec.Command(parts[0], parts[1:]...)
+		cmd.Stderr = os.Stderr
+
+		compiled, err := os.ReadFile("build/dev/javascript/vvv/vvv.mjs")
+		if err == nil {
+			contents := string(compiled)
+			result.Contents = &contents
+		}
+
+		return result, err
 	}
 }
