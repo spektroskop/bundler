@@ -54,9 +54,10 @@ func main() {
 		options.Loader[ext] = api.LoaderFile
 	}
 
-	plugins := make(map[string]api.Plugin)
 	options.Plugins = []api.Plugin{meta.New(cli.Meta)}
 	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
+	plugins := make(map[string]api.Plugin)
+
 	for _, name := range cli.Plugins {
 		switch name {
 		case "elm":
