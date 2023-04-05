@@ -18,12 +18,13 @@ import (
 )
 
 type Bundler struct {
+	Activate    []string `help:"List of optional plugins to activate (${enum})." enum:"tailwind" placeholder:"NAME"`
+	Deactivate  []string `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
 	Entrypoints []string `help:"Entrypoints to build." name:"entrypoint" arg`
 	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
 	Meta        string   `help:"Meta file output." placeholder:"PATH"`
 	Optimize    bool     `help:"Optimized build where applicable."`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
-	Plugins     []string `help:"List of plugins to activate (${enum})." enum:"elm,gleam,gren,tailwind" placeholder:"NAME"`
 	Resolve     string   `help:"Import resolve dir" placeholder:"PATH"`
 }
 
@@ -56,19 +57,22 @@ func main() {
 
 	options.Plugins = []api.Plugin{meta.New(cli.Meta)}
 	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
-	plugins := make(map[string]api.Plugin)
 
-	for _, name := range cli.Plugins {
+	plugins := map[string]api.Plugin{
+		"elm":   elm.New(config),
+		"gleam": gleam.New(config),
+		"gren":  gren.New(config),
+	}
+
+	for _, name := range cli.Activate {
 		switch name {
-		case "elm":
-			plugins[name] = elm.New(config)
-		case "gleam":
-			plugins[name] = gleam.New(config)
-		case "gren":
-			plugins[name] = gren.New(config)
 		case "tailwind":
 			plugins[name] = tailwind.New(config)
 		}
+	}
+
+	for _, name := range cli.Deactivate {
+		delete(plugins, name)
 	}
 
 	for _, plugin := range plugins {
