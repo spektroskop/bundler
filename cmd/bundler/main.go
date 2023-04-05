@@ -22,8 +22,8 @@ type Bundler struct {
 	Meta        string   `help:"Meta file output." placeholder:"PATH"`
 	Optimize    bool     `help:"Optimized build where applicable."`
 	Output      string   `help:"Output folder." placeholder:"PATH" required`
+	Resolve     string   `help:"Import resolve dir" placeholder:"PATH"`
 	Tailwind    bool     `help:"Process stylesheets through tailwind"`
-	Gleam       string   `help:"Gleam build path" placeholder:"PATH"`
 }
 
 func main() {
@@ -48,7 +48,7 @@ func main() {
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
 		elm.New(cli.Optimize),
-		gleam.New(cli.Gleam),
+		gleam.New(cli.Resolve),
 		gren.New(cli.Optimize),
 		meta.New(cli.Meta),
 	}

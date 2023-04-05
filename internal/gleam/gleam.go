@@ -10,7 +10,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-func New(path string) api.Plugin {
+func New(resolveDir string) api.Plugin {
 	return api.Plugin{
 		Name: "gleam",
 		Setup: func(build api.PluginBuild) {
@@ -21,7 +21,7 @@ func New(path string) api.Plugin {
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "gleam"},
-				onLoad(path),
+				onLoad(resolveDir),
 			)
 		},
 	}
@@ -36,10 +36,10 @@ func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
 	return result, nil
 }
 
-func onLoad(path string) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad(resolveDir string) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
-		result.ResolveDir = path
+		result.ResolveDir = resolveDir
 
 		// FIXME: Hm..
 		source := filepath.Base(args.Path)
