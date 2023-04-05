@@ -1,4 +1,4 @@
-package plugin
+package gleam
 
 import (
 	"fmt"
@@ -8,36 +8,36 @@ import (
 	"strings"
 
 	"github.com/evanw/esbuild/pkg/api"
+
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func Gleam(config Config) api.Plugin {
-	var plugin api.Plugin
-	plugin.Name = "gleam"
-
-	plugin.Setup = func(build api.PluginBuild) {
-		var resolveOptions api.OnResolveOptions
-		resolveOptions.Filter = `\.gleam$`
-
-		build.OnResolve(
-			resolveOptions,
-			func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-				var result api.OnResolveResult
-				result.Path = filepath.Join(args.ResolveDir, args.Path)
-				result.Namespace = "gleam"
-				return result, nil
-			},
-		)
-
-		var loadOptions api.OnLoadOptions
-		loadOptions.Filter = `.*`
-		loadOptions.Namespace = "gleam"
-		build.OnLoad(loadOptions, gleam(config))
-	}
-
-	return plugin
+func New(config plugin.Config) api.Plugin {
+	return api.Plugin{Name: "gleam", Setup: setup(config)}
 }
 
-func gleam(config Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func setup(config plugin.Config) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnResolve(
+			api.OnResolveOptions{Filter: `\.gleam$`},
+			onResolve,
+		)
+
+		build.OnLoad(
+			api.OnLoadOptions{Filter: `.*`, Namespace: "gleam"},
+			onLoad(config),
+		)
+	}
+}
+
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+	var result api.OnResolveResult
+	result.Path = filepath.Join(args.ResolveDir, args.Path)
+	result.Namespace = "gleam"
+	return result, nil
+}
+
+func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 		result.ResolveDir = config.Resolve

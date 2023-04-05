@@ -1,4 +1,4 @@
-package plugin
+package tailwind
 
 import (
 	"bytes"
@@ -8,36 +8,35 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func Tailwind(config Config) api.Plugin {
-	var plugin api.Plugin
-	plugin.Name = "tailwind"
-
-	plugin.Setup = func(build api.PluginBuild) {
-		var resolveOptions api.OnResolveOptions
-		resolveOptions.Filter = `\.css$`
-
-		build.OnResolve(
-			resolveOptions,
-			func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-				var result api.OnResolveResult
-				result.Path = filepath.Join(args.ResolveDir, args.Path)
-				result.Namespace = "css"
-				return result, nil
-			},
-		)
-
-		var loadOptions api.OnLoadOptions
-		loadOptions.Filter = `.*`
-		loadOptions.Namespace = "css"
-		build.OnLoad(loadOptions, tailwind(config))
-	}
-
-	return plugin
+func New(config plugin.Config) api.Plugin {
+	return api.Plugin{Name: "tailwind", Setup: setup(config)}
 }
 
-func tailwind(config Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func setup(config plugin.Config) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnResolve(
+			api.OnResolveOptions{Filter: `\.tailwind$`},
+			onResolve,
+		)
+
+		build.OnLoad(
+			api.OnLoadOptions{Filter: `.*`, Namespace: "tailwind"},
+			onLoad(config),
+		)
+	}
+}
+
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+	var result api.OnResolveResult
+	result.Path = filepath.Join(args.ResolveDir, args.Path)
+	result.Namespace = "tailwind"
+	return result, nil
+}
+
+func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 		result.ResolveDir = config.Resolve

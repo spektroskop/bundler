@@ -1,4 +1,4 @@
-package plugin
+package gren
 
 import (
 	"fmt"
@@ -7,41 +7,41 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
+
+	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func Elm(config Config) api.Plugin {
-	var plugin api.Plugin
-	plugin.Name = "elm"
-
-	plugin.Setup = func(build api.PluginBuild) {
-		var resolveOptions api.OnResolveOptions
-		resolveOptions.Filter = `\.elm$`
-
-		build.OnResolve(
-			resolveOptions,
-			func(args api.OnResolveArgs) (api.OnResolveResult, error) {
-				var result api.OnResolveResult
-				result.Path = filepath.Join(args.ResolveDir, args.Path)
-				result.Namespace = "elm"
-				return result, nil
-			},
-		)
-
-		var loadOptions api.OnLoadOptions
-		loadOptions.Filter = `.*`
-		loadOptions.Namespace = "elm"
-		build.OnLoad(loadOptions, elm(config))
-	}
-
-	return plugin
+func New(config plugin.Config) api.Plugin {
+	return api.Plugin{Name: "gren", Setup: setup(config)}
 }
 
-func elm(config Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func setup(config plugin.Config) func(build api.PluginBuild) {
+	return func(build api.PluginBuild) {
+		build.OnResolve(
+			api.OnResolveOptions{Filter: `\.gren$`},
+			onResolve,
+		)
+
+		build.OnLoad(
+			api.OnLoadOptions{Filter: `.*`, Namespace: "gren"},
+			onLoad(config),
+		)
+	}
+}
+
+func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
+	var result api.OnResolveResult
+	result.Path = filepath.Join(args.ResolveDir, args.Path)
+	result.Namespace = "gren"
+	return result, nil
+}
+
+func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
 		result.ResolveDir = config.Resolve
 
-		command, err := exec.LookPath("elm")
+		command, err := exec.LookPath("gren")
 		if err != nil {
 			return result, err
 		}
