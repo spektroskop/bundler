@@ -9,7 +9,7 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
-func New(optimize bool) api.Plugin {
+func New(resolveDir string, optimize bool) api.Plugin {
 	return api.Plugin{
 		Name: "elm",
 		Setup: func(build api.PluginBuild) {
@@ -23,15 +23,16 @@ func New(optimize bool) api.Plugin {
 
 			build.OnLoad(
 				api.OnLoadOptions{Filter: `.*`, Namespace: "elm"},
-				onLoad(optimize),
+				onLoad(resolveDir, optimize),
 			)
 		},
 	}
 }
 
-func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad(resolveDir string, optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
 		var result api.OnLoadResult
+		result.ResolveDir = resolveDir
 
 		command, err := exec.LookPath("elm")
 		if err != nil {

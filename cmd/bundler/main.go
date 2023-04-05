@@ -47,9 +47,9 @@ func main() {
 	options.MinifyIdentifiers = cli.Optimize
 	options.MinifySyntax = cli.Optimize
 	options.Plugins = []api.Plugin{
-		elm.New(cli.Optimize),
+		elm.New(cli.Resolve, cli.Optimize),
 		gleam.New(cli.Resolve),
-		gren.New(cli.Optimize),
+		gren.New(cli.Resolve, cli.Optimize),
 		meta.New(cli.Meta),
 	}
 
