@@ -8,58 +8,47 @@ import (
 	"path/filepath"
 
 	"github.com/evanw/esbuild/pkg/api"
-	"github.com/spektroskop/bundler/internal/plugin"
 )
 
-func New(config plugin.Config) api.Plugin {
-	return api.Plugin{Name: "tailwind", Setup: setup(config)}
+func New() api.Plugin {
+	return api.Plugin{Name: "tailwind", Setup: setup()}
 }
 
-func setup(config plugin.Config) func(build api.PluginBuild) {
+func setup() func(build api.PluginBuild) {
 	return func(build api.PluginBuild) {
-		build.OnResolve(
-			api.OnResolveOptions{Filter: `\.css$`},
-			onResolve,
-		)
-
-		build.OnLoad(
-			api.OnLoadOptions{Filter: `.*`, Namespace: "tailwind"},
-			onLoad(config),
-		)
+		build.OnResolve(api.OnResolveOptions{Filter: `\.css$`}, onResolve)
+		build.OnLoad(api.OnLoadOptions{Filter: `.*`, Namespace: "tailwind"}, onLoad())
 	}
 }
 
 func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
-	var result api.OnResolveResult
-	result.Path = filepath.Join(args.ResolveDir, args.Path)
-	result.Namespace = "tailwind"
+	result := api.OnResolveResult{
+		Path: filepath.Join(args.ResolveDir, args.Path), Namespace: "tailwind",
+	}
+
 	return result, nil
 }
 
-func onLoad(config plugin.Config) func(api.OnLoadArgs) (api.OnLoadResult, error) {
+func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
-		var result api.OnLoadResult
-		result.ResolveDir = config.Resolve
-		result.Loader = api.LoaderCSS
-
 		command, err := exec.LookPath("tailwind")
 		if err != nil {
-			return result, err
+			return api.OnLoadResult{}, err
 		}
-
-		parts := []string{command, "--input", args.Path}
 
 		var stderr bytes.Buffer
-		cmd := exec.Command(parts[0], parts[1:]...)
+		cmd := exec.Command(command, "--input", args.Path)
 		cmd.Stderr = &stderr
 
-		compiled, err := cmd.Output()
+		data, err := cmd.Output()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, stderr.String())
-			return result, err
+			return api.OnLoadResult{}, err
 		}
 
-		contents := string(compiled)
+		contents := string(data)
+		var result api.OnLoadResult
+		result.Loader = api.LoaderCSS
 		result.Contents = &contents
 
 		return result, nil

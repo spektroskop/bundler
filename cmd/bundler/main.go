@@ -13,19 +13,18 @@ import (
 	"github.com/spektroskop/bundler/internal/gleam"
 	"github.com/spektroskop/bundler/internal/gren"
 	"github.com/spektroskop/bundler/internal/meta"
-	"github.com/spektroskop/bundler/internal/plugin"
 	"github.com/spektroskop/bundler/internal/tailwind"
 )
 
 type Bundler struct {
-	Activate    []string `help:"List of optional plugins to activate (${enum})." enum:"tailwind" placeholder:"NAME"`
-	Deactivate  []string `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
-	Entrypoints []string `help:"Entrypoints to build." name:"entrypoint" arg`
-	Loaders     []string `help:"File loaders." placeholder:"EXTENSION"`
-	Meta        string   `help:"Meta file output." placeholder:"PATH"`
-	Optimize    bool     `help:"Optimized build where applicable."`
-	Output      string   `help:"Output folder." placeholder:"PATH" required`
-	Resolve     string   `help:"Import resolve dir." placeholder:"PATH"`
+	Entrypoints []string          `help:"Entrypoints to build." name:"entrypoint" arg`
+	Output      string            `help:"Output folder." placeholder:"PATH" required`
+	Optimize    bool              `help:"Optimized build where applicable."`
+	Meta        string            `help:"Meta file output." placeholder:"PATH"`
+	Activate    []string          `help:"List of optional plugins to activate (${enum})." enum:"tailwind" placeholder:"NAME"`
+	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
+	Loaders     []string          `help:"File loaders." placeholder:"EXTENSION"`
+	Resolve     map[string]string `help:"Plugin resolve path." placeholder:"PLUGIN=PATH"`
 }
 
 func main() {
@@ -56,18 +55,17 @@ func main() {
 	}
 
 	options.Plugins = []api.Plugin{meta.New(cli.Meta)}
-	config := plugin.Config{Optimized: cli.Optimize, Resolve: cli.Resolve}
 
 	plugins := map[string]api.Plugin{
-		"elm":   elm.New(config),
-		"gleam": gleam.New(config),
-		"gren":  gren.New(config),
+		"elm":   elm.New(cli.Optimize),
+		"gleam": gleam.New(cli.Resolve["gleam"]),
+		"gren":  gren.New(cli.Optimize),
 	}
 
 	for _, name := range cli.Activate {
 		switch name {
 		case "tailwind":
-			plugins[name] = tailwind.New(config)
+			plugins[name] = tailwind.New()
 		}
 	}
 
