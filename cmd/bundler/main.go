@@ -78,14 +78,21 @@ func main() {
 	}
 
 	result := api.Build(options)
-	formatOptions := api.FormatMessagesOptions{Color: true}
 
-	for _, msg := range api.FormatMessages(result.Warnings, formatOptions) {
-		fmt.Print(msg)
+	for _, msg := range result.Warnings {
+		if msg.Location == nil {
+			log.Warn().Msg(msg.Text)
+		} else {
+			log.Warn().Str("source", msg.Location.File).Msg(msg.Text)
+		}
 	}
 
-	for _, msg := range api.FormatMessages(result.Errors, formatOptions) {
-		fmt.Print(msg)
+	for _, msg := range result.Errors {
+		if msg.Location == nil {
+			log.Error().Msg(msg.Text)
+		} else {
+			log.Error().Str("source", msg.Location.File).Msg(msg.Text)
+		}
 	}
 
 	if len(result.Errors) != 0 {
