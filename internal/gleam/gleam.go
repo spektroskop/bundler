@@ -34,6 +34,7 @@ func onLoad(resolve string) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		}
 
 		cmd := exec.Command(command, "build", "--target=javascript")
+		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
 			return r, err
