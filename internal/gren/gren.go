@@ -39,7 +39,6 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		defer os.Remove(output.Name())
 
 		parts := []string{command, "make", args.Path, "--output", output.Name()}
-
 		if optimize {
 			parts = append(parts, "--optimize")
 		}

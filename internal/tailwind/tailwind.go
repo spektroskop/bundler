@@ -45,8 +45,8 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		}
 
 		contents := string(data)
-		r.Loader = api.LoaderCSS
 		r.Contents = &contents
+		r.Loader = api.LoaderCSS
 		return r, nil
 	}
 }
