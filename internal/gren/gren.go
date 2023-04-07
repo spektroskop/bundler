@@ -19,24 +19,22 @@ func setup(optimize bool) func(build api.PluginBuild) {
 	}
 }
 
-func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
-	result := api.OnResolveResult{
-		Namespace: "gren", Path: filepath.Join(args.ResolveDir, args.Path),
-	}
-
-	return result, nil
+func onResolve(args api.OnResolveArgs) (r api.OnResolveResult, _ error) {
+	r.Namespace = "gren"
+	r.Path = filepath.Join(args.ResolveDir, args.Path)
+	return r, nil
 }
 
 func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
-	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+	return func(args api.OnLoadArgs) (r api.OnLoadResult, _ error) {
 		command, err := exec.LookPath("gren")
 		if err != nil {
-			return api.OnLoadResult{}, err
+			return r, err
 		}
 
 		output, err := os.CreateTemp("/tmp", "*.js")
 		if err != nil {
-			return api.OnLoadResult{}, err
+			return r, err
 		}
 		defer os.Remove(output.Name())
 
@@ -49,16 +47,15 @@ func onLoad(optimize bool) func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		cmd := exec.Command(parts[0], parts[1:]...)
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
-			return api.OnLoadResult{}, err
+			return r, err
 		}
 
-		var result api.OnLoadResult
 		data, err := os.ReadFile(output.Name())
 		if err == nil {
 			contents := string(data)
-			result.Contents = &contents
+			r.Contents = &contents
 		}
 
-		return result, err
+		return r, err
 	}
 }

@@ -21,19 +21,17 @@ func setup() func(build api.PluginBuild) {
 	}
 }
 
-func onResolve(args api.OnResolveArgs) (api.OnResolveResult, error) {
-	result := api.OnResolveResult{
-		Path: filepath.Join(args.ResolveDir, args.Path), Namespace: "tailwind",
-	}
-
-	return result, nil
+func onResolve(args api.OnResolveArgs) (r api.OnResolveResult, _ error) {
+	r.Path = filepath.Join(args.ResolveDir, args.Path)
+	r.Namespace = "tailwind"
+	return r, nil
 }
 
 func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
-	return func(args api.OnLoadArgs) (api.OnLoadResult, error) {
+	return func(args api.OnLoadArgs) (r api.OnLoadResult, _ error) {
 		command, err := exec.LookPath("tailwind")
 		if err != nil {
-			return api.OnLoadResult{}, err
+			return r, err
 		}
 
 		var stderr bytes.Buffer
@@ -43,14 +41,12 @@ func onLoad() func(api.OnLoadArgs) (api.OnLoadResult, error) {
 		data, err := cmd.Output()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, stderr.String())
-			return api.OnLoadResult{}, err
+			return r, err
 		}
 
 		contents := string(data)
-		var result api.OnLoadResult
-		result.Loader = api.LoaderCSS
-		result.Contents = &contents
-
-		return result, nil
+		r.Loader = api.LoaderCSS
+		r.Contents = &contents
+		return r, nil
 	}
 }
