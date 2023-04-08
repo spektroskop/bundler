@@ -25,9 +25,9 @@ func configure(app App) (options api.BuildOptions) {
 	options.MinifySyntax = app.Optimize
 
 	options.Loader = make(map[string]api.Loader)
-	for _, ext := range app.Loaders {
+	for ext, loader := range app.Loader {
 		ext = fmt.Sprintf(".%s", ext)
-		options.Loader[ext] = api.LoaderFile
+		options.Loader[ext] = api.Loader(loader)
 	}
 
 	plugins := map[string]api.Plugin{
