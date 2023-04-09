@@ -15,7 +15,7 @@ type App struct {
 	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
 	Loader      map[string]Loader `help:"Loaders (jsx,file)." placeholder:"EXT:NAME"`
 	Resolve     map[string]string `help:"Plugin resolve path." placeholder:"PLUGIN=PATH"`
-	Set         map[string]string `help:"Set config values." placeholder:"KEY=VALUE"`
+	Set         map[string]string `help:"Set config values." placeholder:"KEY=VALUE" mapsep:","`
 }
 
 type Loader api.Loader

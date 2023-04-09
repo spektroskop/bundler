@@ -39,7 +39,7 @@ func configure(app App) (options api.BuildOptions) {
 	for _, name := range app.Activate {
 		switch name {
 		case "tailwind":
-			plugins[name] = tailwind.New(app.Set["tailwind-config"])
+			plugins[name] = tailwind.New(app.Set["tailwind.config"])
 		}
 	}
 
