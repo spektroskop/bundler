@@ -20,9 +20,9 @@ func configure(app App) (options api.BuildOptions) {
 	options.EntryNames = "[dir]/[name]"
 	options.AssetNames = "[dir]/[name]"
 	options.Write = true
-	options.MinifyWhitespace = app.Optimize
-	options.MinifyIdentifiers = app.Optimize
-	options.MinifySyntax = app.Optimize
+	options.MinifyWhitespace = app.Optimized
+	options.MinifyIdentifiers = app.Optimized
+	options.MinifySyntax = app.Optimized
 
 	options.Loader = make(map[string]api.Loader)
 	for ext, loader := range app.Loader {
@@ -31,9 +31,9 @@ func configure(app App) (options api.BuildOptions) {
 	}
 
 	plugins := map[string]api.Plugin{
-		"elm":   elm.New(app.Optimize),
+		"elm":   elm.New(app.Optimized),
 		"gleam": gleam.New(app.Resolve["gleam"]),
-		"gren":  gren.New(app.Optimize),
+		"gren":  gren.New(app.Optimized),
 	}
 
 	for _, name := range app.Activate {
