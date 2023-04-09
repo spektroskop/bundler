@@ -13,9 +13,9 @@ type App struct {
 	Meta        string            `help:"Meta file output." placeholder:"PATH"`
 	Activate    []string          `help:"List of optional plugins to activate (${enum})." enum:"tailwind" placeholder:"NAME"`
 	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
-	Loader      map[string]Loader `help:"Loaders (jsx,file)" placeholder:"EXT:NAME"`
+	Loader      map[string]Loader `help:"Loaders (jsx,file)." placeholder:"EXT:NAME"`
 	Resolve     map[string]string `help:"Plugin resolve path." placeholder:"PLUGIN=PATH"`
-	Config      map[string]string `help:"Plugin config" placeholder:"KEY=VALUE"`
+	Config      map[string]string `help:"Plugin config." placeholder:"KEY=VALUE"`
 }
 
 type Loader api.Loader
