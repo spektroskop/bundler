@@ -14,7 +14,7 @@ func main() {
 	})
 
 	var app App
-	kong.Parse(&app)
+	kong.Parse(&app, kong.Help(app.Help))
 
 	build(configure(app))
 }

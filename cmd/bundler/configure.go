@@ -32,14 +32,14 @@ func configure(app App) (options api.BuildOptions) {
 
 	plugins := map[string]api.Plugin{
 		"elm":   elm.New(app.Optimized),
-		"gleam": gleam.New(app.Resolve["gleam"]),
+		"gleam": gleam.New(app.Config["gleam.resolve"]),
 		"gren":  gren.New(app.Optimized),
 	}
 
 	for _, name := range app.Activate {
 		switch name {
 		case "tailwind":
-			plugins[name] = tailwind.New(app.Set["tailwind.config"])
+			plugins[name] = tailwind.New(app.Config["tailwind.config"])
 		}
 	}
 
