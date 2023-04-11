@@ -15,12 +15,12 @@ const (
 
 type App struct {
 	Entrypoints []string          `help:"Entrypoints to build." name:"entrypoint" arg`
-	Output      string            `help:"Output folder." short="o" placeholder:"PATH" required`
-	Optimized   bool              `help:"Optimized build where applicable." short="z"`
-	Activate    []string          `help:"List of optional plugins to activate (${enum})." short="a" enum:"tailwind" placeholder:"NAME"`
-	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." short="d" enum:"elm,gleam,gren" placeholder:"NAME"`
-	Loader      map[string]Loader `help:"Loaders (jsx,file)." short="l" placeholder:"EXT:NAME"`
-	Config      map[string]string `help:"Set config values." short="s" name:"set" placeholder:"KEY=VALUE" mapsep:","`
+	Output      string            `help:"Output folder." short:"o" placeholder:"PATH" required`
+	Optimized   bool              `help:"Optimized build where applicable." short:"z"`
+	Activate    []string          `help:"List of optional plugins to activate (${enum})." short:"a" enum:"tailwind" placeholder:"NAME"`
+	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." short:"d" enum:"elm,gleam,gren" placeholder:"NAME"`
+	Loader      map[string]Loader `help:"Loaders (jsx,file)." short:"l" placeholder:"EXT:NAME"`
+	Config      map[string]string `help:"Set config values." short:"s" name:"set" placeholder:"KEY=VALUE" mapsep:","`
 }
 
 func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
