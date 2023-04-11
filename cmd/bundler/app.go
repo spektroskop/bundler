@@ -7,15 +7,20 @@ import (
 	"github.com/evanw/esbuild/pkg/api"
 )
 
+const (
+	ConfigGleamResolve   = "gleam.resolve"
+	ConfigMetaOutput     = "meta.output"
+	ConfigTailwindConfig = "tailwind.config"
+)
+
 type App struct {
 	Entrypoints []string          `help:"Entrypoints to build." name:"entrypoint" arg`
-	Output      string            `help:"Output folder." placeholder:"PATH" required`
-	Optimized   bool              `help:"Optimized build where applicable."`
-	Meta        string            `help:"Meta file output." placeholder:"PATH"`
-	Activate    []string          `help:"List of optional plugins to activate (${enum})." enum:"tailwind" placeholder:"NAME"`
-	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." enum:"elm,gleam,gren" placeholder:"NAME"`
-	Loader      map[string]Loader `help:"Loaders (jsx,file)." placeholder:"EXT:NAME"`
-	Config      map[string]string `help:"Set config values." name:"set" placeholder:"KEY=VALUE" mapsep:","`
+	Output      string            `help:"Output folder." short="o" placeholder:"PATH" required`
+	Optimized   bool              `help:"Optimized build where applicable." short="z"`
+	Activate    []string          `help:"List of optional plugins to activate (${enum})." short="a" enum:"tailwind" placeholder:"NAME"`
+	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." short="d" enum:"elm,gleam,gren" placeholder:"NAME"`
+	Loader      map[string]Loader `help:"Loaders (jsx,file)." short="l" placeholder:"EXT:NAME"`
+	Config      map[string]string `help:"Set config values." short="s" name:"set" placeholder:"KEY=VALUE" mapsep:","`
 }
 
 func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
@@ -25,8 +30,9 @@ func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
 
 	fmt.Println()
 	fmt.Println("Config:")
-	fmt.Println("  gleam.resolve=PATH")
-	fmt.Println("  tailwind.config=PATH")
+	fmt.Printf("  %s=PATH    Path to use for revsolving dependencies in Gleam.\n", ConfigGleamResolve)
+	fmt.Printf("  %s=PATH      Save build metadata to file.\n", ConfigMetaOutput)
+	fmt.Printf("  %s=PATH  Use a custom path to configure Tailwind.\n", ConfigTailwindConfig)
 	fmt.Println()
 
 	return nil
