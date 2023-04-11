@@ -5,7 +5,9 @@ import (
 
 	"github.com/evanw/esbuild/pkg/api"
 
+	"github.com/spektroskop/bundler/internal/alias"
 	"github.com/spektroskop/bundler/internal/elm"
+	"github.com/spektroskop/bundler/internal/fetch"
 	"github.com/spektroskop/bundler/internal/gleam"
 	"github.com/spektroskop/bundler/internal/gren"
 	"github.com/spektroskop/bundler/internal/meta"
@@ -31,7 +33,9 @@ func configure(app App) (options api.BuildOptions) {
 	}
 
 	plugins := map[string]api.Plugin{
+		"alias": alias.New(app.Alias),
 		"elm":   elm.New(app.Optimized),
+		"fetch": fetch.New(),
 		"gleam": gleam.New(app.Config[ConfigGleamResolve]),
 		"gren":  gren.New(app.Optimized),
 	}

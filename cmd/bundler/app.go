@@ -15,12 +15,13 @@ const (
 
 type App struct {
 	Entrypoints []string          `help:"Entrypoints to build." name:"entrypoint" arg`
-	Output      string            `help:"Output folder." short:"o" placeholder:"PATH" required`
 	Optimized   bool              `help:"Optimized build where applicable." short:"z"`
+	Alias       map[string]string `help:"Import aliases." placeholder:"FROM=TO" mapsep:","`
 	Activate    []string          `help:"List of optional plugins to activate (${enum})." short:"a" enum:"tailwind" placeholder:"NAME"`
-	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." short:"d" enum:"elm,gleam,gren" placeholder:"NAME"`
-	Loader      map[string]Loader `help:"Loaders (jsx,file)." short:"l" placeholder:"EXT:NAME"`
+	Deactivate  []string          `help:"List of plugins to deactivate (${enum})." short:"d" enum:"alias,elm,fetch,gleam,gren" placeholder:"NAME"`
+	Loader      map[string]Loader `help:"Loaders (js,jsx,file)." short:"l" placeholder:"EXT:NAME" mapsep:","`
 	Config      map[string]string `help:"Set config values." short:"s" name:"set" placeholder:"KEY=VALUE" mapsep:","`
+	Output      string            `help:"Output folder." short:"o" placeholder:"PATH" required`
 }
 
 func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
@@ -44,6 +45,9 @@ func (v *Loader) UnmarshalText(b []byte) error {
 	switch string(b) {
 	case "jsx":
 		*v = Loader(api.LoaderJSX)
+		return nil
+	case "js":
+		*v = Loader(api.LoaderJS)
 		return nil
 	case "file":
 		*v = Loader(api.LoaderFile)
