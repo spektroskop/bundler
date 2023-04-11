@@ -32,7 +32,7 @@ func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
 	fmt.Println("Config:")
 	fmt.Printf("  %s=PATH      Path to use for resolving dependencies in Gleam.\n", ConfigGleamResolve)
 	fmt.Printf("  %s=PATH        Save build metadata to file.\n", ConfigMetaOutput)
-	fmt.Printf("  %s=PATH    Use a custom path to configure Tailwind.\n", ConfigTailwindConfig)
+	fmt.Printf("  %s=PATH    Path to custom tailwind config file.\n", ConfigTailwindConfig)
 	fmt.Println()
 
 	return nil
