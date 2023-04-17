@@ -13,6 +13,14 @@ const (
 	ConfigTailwindConfig = "tailwind.config"
 )
 
+var (
+	configs = map[string]string{
+		fmt.Sprintf("%s=PATH", ConfigGleamResolve):   "Path to use for resolving dependencies in Gleam.",
+		fmt.Sprintf("%s=PATH", ConfigMetaOutput):     "Save build metadata to file.",
+		fmt.Sprintf("%s=PATH", ConfigTailwindConfig): "Path to custom tailwind config file.",
+	}
+)
+
 type App struct {
 	Entrypoints []string          `help:"Entrypoints to build." name:"entrypoint" arg`
 	Output      string            `help:"Output folder." short:"o" placeholder:"PATH" required`
@@ -28,11 +36,18 @@ func (app App) Help(options kong.HelpOptions, ctx *kong.Context) error {
 		return err
 	}
 
+	var pad int
+	for key := range configs {
+		if len(key) > pad {
+			pad = len(key)
+		}
+	}
+
 	fmt.Println()
 	fmt.Println("Config:")
-	fmt.Printf("  %s=PATH      Path to use for resolving dependencies in Gleam.\n", ConfigGleamResolve)
-	fmt.Printf("  %s=PATH        Save build metadata to file.\n", ConfigMetaOutput)
-	fmt.Printf("  %s=PATH    Path to custom tailwind config file.\n", ConfigTailwindConfig)
+	for key, help := range configs {
+		fmt.Printf("  %-*s    %s\n", pad, key, help)
+	}
 	fmt.Println()
 
 	return nil
