@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/alecthomas/kong v0.7.1
-	github.com/evanw/esbuild v0.17.17
+	github.com/evanw/esbuild v0.17.18
 	github.com/rs/zerolog v1.29.1
 )
 
